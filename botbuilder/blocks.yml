@@ -1,0 +1,33 @@
+---
+blocks:
+
+  'start':
+    type: "/start"
+    text: Hello! Welcome to start.
+    delay: 2
+    next_block: 1
+
+  '1':
+    type: text
+    text: "This is block #1"
+    buttons:
+      "Go to block #2":
+        next_block: '2'
+      "Go to end":
+        next_block: '3'
+    next_block: None
+
+  '2':
+    type: text
+    text: "This is block #2"
+    buttons:
+      "Go to block #1":
+        next_block: '1'
+      "Go to end":
+        next_block: '3'
+    next_block: None
+
+  '3':
+    type: text
+    text: This is the end
+    next_block: None

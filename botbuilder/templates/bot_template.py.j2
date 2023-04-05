@@ -1,0 +1,104 @@
+import asyncio
+from asyncio import Event
+from typing import Optional
+
+from telegram import __version__ as TG_VER, InlineKeyboardButton, InlineKeyboardMarkup
+
+try:
+    from telegram import __version_info__
+except ImportError:
+    __version_info__ = (0, 0, 0, 0, 0)  # type: ignore[assignment]
+
+if __version_info__ < (20, 0, 0, "alpha", 1):
+    raise RuntimeError(
+        f"This example is not compatible with your current PTB version {TG_VER}. To view the "
+        f"{TG_VER} version of this example, "
+        f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
+    )
+from telegram import Update
+from telegram.ext import (
+    CallbackQueryHandler,
+    CommandHandler,
+    ContextTypes,
+    ConversationHandler, Application,
+)
+
+INLINE_BUTTON_ROUTES = "inline_button_routes"
+
+
+class TelegramBot:
+    def __init__(self):
+        self.start_command_string = "start"
+        self.application = self.init_bot()
+
+    def init_bot(self):
+        api_key = "{{ template_data["token"] }}"
+        application = Application.builder().token(api_key).build()
+        application.add_handler(self.get_conv_handler())
+        return application
+
+    async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        await update.message.reply_text("{{ template_data["blocks"]["start"]["text"] }}")
+        user_data = context.user_data
+        {%- if template_data["blocks"]["start"]["next_block"] %}
+        await self.block_{{ template_data["blocks"]["start"]["next_block"] }}(update, context)
+        {%- endif %}
+        return INLINE_BUTTON_ROUTES
+
+    {% for block_id, block in template_data["blocks"].items() if block_id != "start" %}
+    async def block_{{ block_id }}(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        {%- if block.get("buttons") %}
+        if update.callback_query:
+            await update.callback_query.answer()
+        reply_text = "{{ block["text"] }}"
+        buttons = [[
+            {%- for button_name, button_callback in block["buttons"].items() %}
+            InlineKeyboardButton("{{ button_name }}", callback_data="{{ button_callback }}"),
+            {%- endfor %}
+        ]]
+        keyboard = InlineKeyboardMarkup(buttons)
+        if update.callback_query:
+            await update.callback_query.edit_message_text(text=reply_text, reply_markup=keyboard)
+        else:
+            await update.message.reply_text(text=reply_text, reply_markup=keyboard)
+        {%- else %}
+        query = update.callback_query
+        await query.answer()
+        await query.edit_message_text(text="{{ block["text"] }}")
+        {%- endif %}
+        return INLINE_BUTTON_ROUTES
+    {%- endfor %}
+
+    def get_conv_handler(self):
+        return ConversationHandler(
+            entry_points=[CommandHandler(self.start_command_string, self.start)],
+            states={
+                INLINE_BUTTON_ROUTES: [
+                    {%- for block_id, block in template_data["blocks"].items() if block_id != "start" %}
+                    CallbackQueryHandler(self.block_{{ block_id }},
+                                         pattern="^" + "BLOCK_{{ block_id }}_PATH" + "$"),
+                    {%- endfor %}
+                ]
+            },
+            fallbacks=[CommandHandler(self.start_command_string, self.start)]
+        )
+
+    async def run_bot(self, stop_event: Optional[Event] = None):
+        async with self.application:
+            await self.application.start()
+            await self.application.updater.start_polling()
+            await stop_event.wait()
+            await self.application.updater.stop()
+            await self.application.stop()
+
+async def main():
+    bot = TelegramBot()
+    stop_event = asyncio.Event()
+    try:
+        await asyncio.create_task(bot.run_bot(stop_event=stop_event))
+    except KeyboardInterrupt:
+        stop_event.set()
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
