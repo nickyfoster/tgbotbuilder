@@ -32,13 +32,13 @@ class TelegramBot:
         self.application = self.init_bot()
 
     def init_bot(self):
-        api_key = "5949527072:AAFN80RpiObedc-wfmwaVzQbrFlr8MkiqnM"
+        api_key = ""
         application = Application.builder().token(api_key).build()
         application.add_handler(self.get_conv_handler())
         return application
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text("start")
+        await update.message.reply_text("Hello!")
         user_data = context.user_data
         await self.block_1(update, context)
         return INLINE_BUTTON_ROUTES
@@ -47,12 +47,12 @@ class TelegramBot:
     async def block_1(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.callback_query:
             await update.callback_query.answer()
-        reply_text = "box1"
+        reply_text = "Block one"
         buttons = [[
-            InlineKeyboardButton("btn1", callback_data="BLOCK_3_PATH"),
-            InlineKeyboardButton("btn2", callback_data="BLOCK_4_PATH"),
-            InlineKeyboardButton("btn3", callback_data="BLOCK_5_PATH"),
-            InlineKeyboardButton("btnNew", callback_data="BLOCK_6_PATH"),
+            InlineKeyboardButton("Button #1", callback_data="BLOCK_3_PATH"),
+            InlineKeyboardButton("Button #2", callback_data="BLOCK_4_PATH"),
+            InlineKeyboardButton("Button #3", callback_data="BLOCK_5_PATH"),
+            InlineKeyboardButton("Button #4", callback_data="BLOCK_6_PATH"),
         ]]
         keyboard = InlineKeyboardMarkup(buttons)
         if update.callback_query:
@@ -63,24 +63,24 @@ class TelegramBot:
     async def block_3(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         await query.answer()
-        await query.edit_message_text(text="end1")
+        await query.edit_message_text(text="End #1")
         return INLINE_BUTTON_ROUTES
     async def block_4(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         await query.answer()
-        await query.edit_message_text(text="end2")
+        await query.edit_message_text(text="End #2")
         return INLINE_BUTTON_ROUTES
     async def block_5(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         await query.answer()
-        await query.edit_message_text(text="end3")
+        await query.edit_message_text(text="End #3")
         return INLINE_BUTTON_ROUTES
     async def block_6(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.callback_query:
             await update.callback_query.answer()
-        reply_text = "box2"
+        reply_text = "Block two"
         buttons = [[
-            InlineKeyboardButton("back", callback_data="BLOCK_1_PATH"),
+            InlineKeyboardButton("Back to block one", callback_data="BLOCK_1_PATH"),
         ]]
         keyboard = InlineKeyboardMarkup(buttons)
         if update.callback_query:
