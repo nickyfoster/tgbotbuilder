@@ -38,55 +38,50 @@ class TelegramBot:
         return application
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text("Hello!")
+        await update.message.reply_text("start")
         user_data = context.user_data
-        await self.block_1(update, context)
+        await self.block_3(update, context)
         return INLINE_BUTTON_ROUTES
 
     
-    async def block_1(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def block_3(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.callback_query:
             await update.callback_query.answer()
-        reply_text = "Block one"
+        reply_text = "room one"
         buttons = [[
-            InlineKeyboardButton("Button #1", callback_data="BLOCK_3_PATH"),
-            InlineKeyboardButton("Button #2", callback_data="BLOCK_4_PATH"),
-            InlineKeyboardButton("Button #3", callback_data="BLOCK_5_PATH"),
-            InlineKeyboardButton("Button #4", callback_data="BLOCK_6_PATH"),
+            InlineKeyboardButton("door 2", callback_data="BLOCK_4_PATH"),
+            InlineKeyboardButton("door 3", callback_data="BLOCK_4_PATH"),
         ]]
         keyboard = InlineKeyboardMarkup(buttons)
         if update.callback_query:
             await update.callback_query.edit_message_text(text=reply_text, reply_markup=keyboard)
         else:
             await update.message.reply_text(text=reply_text, reply_markup=keyboard)
-        return INLINE_BUTTON_ROUTES
-    async def block_3(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        query = update.callback_query
-        await query.answer()
-        await query.edit_message_text(text="End #1")
         return INLINE_BUTTON_ROUTES
     async def block_4(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         await query.answer()
-        await query.edit_message_text(text="End #2")
-        return INLINE_BUTTON_ROUTES
-    async def block_5(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        query = update.callback_query
-        await query.answer()
-        await query.edit_message_text(text="End #3")
+        await query.edit_message_text(text="you died")
         return INLINE_BUTTON_ROUTES
     async def block_6(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.callback_query:
             await update.callback_query.answer()
-        reply_text = "Block two"
+        reply_text = "room two"
         buttons = [[
-            InlineKeyboardButton("Back to block one", callback_data="BLOCK_1_PATH"),
+            InlineKeyboardButton("door 1", callback_data="BLOCK_7_PATH"),
+            InlineKeyboardButton("door 2", callback_data="BLOCK_4_PATH"),
+            InlineKeyboardButton("door 3", callback_data="BLOCK_3_PATH"),
         ]]
         keyboard = InlineKeyboardMarkup(buttons)
         if update.callback_query:
             await update.callback_query.edit_message_text(text=reply_text, reply_markup=keyboard)
         else:
             await update.message.reply_text(text=reply_text, reply_markup=keyboard)
+        return INLINE_BUTTON_ROUTES
+    async def block_7(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        query = update.callback_query
+        await query.answer()
+        await query.edit_message_text(text="you won!")
         return INLINE_BUTTON_ROUTES
 
     def get_conv_handler(self):
@@ -94,16 +89,14 @@ class TelegramBot:
             entry_points=[CommandHandler(self.start_command_string, self.start)],
             states={
                 INLINE_BUTTON_ROUTES: [
-                    CallbackQueryHandler(self.block_1,
-                                         pattern="^" + "BLOCK_1_PATH" + "$"),
                     CallbackQueryHandler(self.block_3,
                                          pattern="^" + "BLOCK_3_PATH" + "$"),
                     CallbackQueryHandler(self.block_4,
                                          pattern="^" + "BLOCK_4_PATH" + "$"),
-                    CallbackQueryHandler(self.block_5,
-                                         pattern="^" + "BLOCK_5_PATH" + "$"),
                     CallbackQueryHandler(self.block_6,
                                          pattern="^" + "BLOCK_6_PATH" + "$"),
+                    CallbackQueryHandler(self.block_7,
+                                         pattern="^" + "BLOCK_7_PATH" + "$"),
                 ]
             },
             fallbacks=[CommandHandler(self.start_command_string, self.start)]

@@ -1,0 +1,37 @@
+#name: Pytest
+#
+#on:
+#  pull_request:
+#    branches:
+#      - master
+#
+#  workflow_run:
+#    workflows: [ "CI build" ]
+#    types:
+#      - completed
+#
+#jobs:
+#  test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Set up Python 3.10
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: '3.10'
+#      - name: Install dependencies
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install pytest
+#          pip install . --no-cache-dir
+#      - name: Test with pytest
+#        env:
+#          TELEGRAM_BOT_NAME: ${{ secrets.TELEGRAM_BOT_NAME }}
+#          TELEGRAM_APP_ID: ${{ secrets.TELEGRAM_APP_ID }}
+#          TELEGRAM_APP_HASH: ${{ secrets.TELEGRAM_APP_HASH }}
+#          TELEGRAM_APP_SESSION: ${{ secrets.TELEGRAM_APP_SESSION }}
+#          TELEGRAM_BOT_API_KEY: ${{ secrets.TELEGRAM_BOT_API_KEY }}
+#          COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
+#        run: |
+#          pytest test/unit
+#          pytest test/e2e

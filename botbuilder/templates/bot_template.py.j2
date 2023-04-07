@@ -32,7 +32,7 @@ class TelegramBot:
         self.application = self.init_bot()
 
     def init_bot(self):
-        api_key = "{{ template_data["token"] }}"
+        api_key = "{{ template_data["config"]["api_token"] }}"
         application = Application.builder().token(api_key).build()
         application.add_handler(self.get_conv_handler())
         return application
@@ -45,7 +45,7 @@ class TelegramBot:
         {%- endif %}
         return INLINE_BUTTON_ROUTES
 
-    {% for block_id, block in template_data["blocks"].items() if block_id != "start" %}
+    {% for block_id, block in template_data["blocks"].items() if block_id not in ["start", "config"] %}
     async def block_{{ block_id }}(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         {%- if block.get("buttons") %}
         if update.callback_query:

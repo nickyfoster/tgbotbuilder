@@ -9,8 +9,6 @@ def render_template(template_data):
     template_file = "bot_template.py.j2"
     template = template_env.get_template(template_file)
     template_data = prepare_template_data(template_data)
-    template_data["token"] = ""
-
 
     return template.render(template_data=template_data)
 
